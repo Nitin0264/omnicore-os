@@ -48,3 +48,6 @@ const startServer = async () => {
 };
 
 startServer();
+
+const helpdeskRoutes = require('./modules/helpdesk/helpdeskRoutes');
+app.use('/api/v1/helpdesk', helpdeskRoutes);
