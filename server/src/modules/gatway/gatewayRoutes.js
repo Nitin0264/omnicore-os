@@ -17,4 +17,9 @@ router.get('/proxy/data-feed', gatewayAuthAndLimit, (req, res) => {
   });
 });
 
+const { handleAgentQuery } = require('./aiOrchestratorController');
+
+// AI Agent Orchestration Endpoint
+router.post('/agent/orchestrate', protect, handleAgentQuery);
+
 module.exports = router;
