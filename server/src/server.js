@@ -51,3 +51,8 @@ startServer();
 
 const helpdeskRoutes = require('./modules/helpdesk/helpdeskRoutes');
 app.use('/api/v1/helpdesk', helpdeskRoutes);
+const gatewayRoutes = require('./modules/gateway/gatewayRoutes');
+const { correlationIdMiddleware } = require('./middleware/gatewayMiddleware');
+
+app.use(correlationIdMiddleware); // Use correlation tracking globally
+app.use('/api/v1/gateway', gatewayRoutes);
