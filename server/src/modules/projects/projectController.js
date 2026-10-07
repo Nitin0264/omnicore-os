@@ -1,4 +1,4 @@
-const getTickets = (req, res) => {
+const getTasks = (req, res) => {
   try {
     res.status(200).json({
       status: 'success',
@@ -9,11 +9,11 @@ const getTickets = (req, res) => {
   }
 };
 
-const createTicket = (req, res) => {
+const createTask = (req, res) => {
   try {
     res.status(201).json({
       status: 'success',
-      message: 'Ticket created successfully',
+      message: 'Task created successfully',
       data: req.body
     });
   } catch (error) {
@@ -22,6 +22,6 @@ const createTicket = (req, res) => {
 };
 
 module.exports = {
-  getTickets,
-  createTicket
+  getTasks,
+  createTask
 };

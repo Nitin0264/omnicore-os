@@ -1,11 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const { createTicket, getTickets } = require('./helpdeskController');
-const { protect, restrictTo } = require('../../middleware/authMiddleware');
+const { getTickets, createTicket } = require('./helpdeskController');
 
-router.use(protect);
-
-router.route('/')
+router.route('/tickets')
   .get(getTickets)
   .post(createTicket);
 
