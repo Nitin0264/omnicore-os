@@ -1,58 +1,103 @@
-// Add this near your middleware setup in server.js
-const authRoutes = require('./modules/auth/authRoutes');
-app.use('/api/v1/auth', authRoutes);
-
-const projectRoutes = require('./modules/projects/projectRoutes');
-app.use('/api/v1/projects', projectRoutes);
-
-// Add these imports at the top of server.js
+require('dotenv').config();
+const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
+const cors = require('cors');
+const helmet = require('helmet');
+const morgan = require('morgan');
+const mongoSanitize = require('express-mongo-sanitize');
+const connectDB = require('./config/db');
 
-// Wrap Express app with HTTP server
+// Initialize Express & HTTP Server for WebSockets
+const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: {
-    origin: '*', // Adjust for production frontend URL later
-    methods: ['GET', 'POST']
+  cors: { 
+    origin: '*', 
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'] 
   }
 });
 
-// Socket.io connection handler for multi-tenant rooms
-io.on('connection', (socket) => {
-  console.log(`[Socket] User connected: ${socket.id}`);
+// Connect to MongoDB
+connectDB();
 
-  // Clients join a specific tenant room upon authentication
-  socket.on('join_tenant', (tenantId) => {
-    socket.join(`tenant_${tenantId}`);
-    console.log(`[Socket] User joined room: tenant_${tenantId}`);
-  });
+// ------------------------------------
+// Security & Utility Middleware
+// ------------------------------------
+app.use(helmet()); // Secure HTTP headers
+app.use(cors()); // Enable CORS
+app.use(express.json({ limit: '10mb' })); // Parse JSON bodies
+app.use(mongoSanitize({
+  replaceWith: '_'
+}));
+app.use(morgan('dev')); // HTTP request logger
 
-  socket.on('disconnect', () => {
-    console.log(`[Socket] User disconnected: ${socket.id}`);
+// Make Socket.io instance accessible inside controllers via req.app.get('io')
+app.set('io', io);
+
+// ------------------------------------
+// API Routes Mounting
+// ------------------------------------
+// Auth & Tenant Routes (Active)
+const authRoutes = require('./modules/auth/authRoutes');
+app.use('/api/v1/auth', authRoutes);
+
+// Uncomment these as you create their route files:
+// const projectRoutes = require('./modules/projects/projectRoutes');
+// app.use('/api/v1/projects', projectRoutes);
+
+// const inventoryRoutes = require('./modules/inventory/inventoryRoutes');
+// app.use('/api/v1/inventory', inventoryRoutes);
+
+// const helpdeskRoutes = require('./modules/helpdesk/helpdeskRoutes');
+// app.use('/api/v1/helpdesk', helpdeskRoutes);
+
+// const aiRoutes = require('./modules/ai/aiRoutes');
+// app.use('/api/v1/ai', aiRoutes);
+
+// ------------------------------------
+// Health Check Root Route
+// ------------------------------------
+app.get('/', (req, res) => {
+  res.status(200).json({ 
+    status: 'success', 
+    message: 'OmniCore OS Enterprise API Gateway operational',
+    timestamp: new Date().toISOString()
   });
 });
 
-// Export io so modules can trigger real-time broadcasts
-app.set('io', io);
-
-// Replace app.listen with server.listen
-const PORT = process.env.PORT || 5000;
-const startServer = async () => {
-  await connectDB();
-  await connectRedis();
-  
-  server.listen(PORT, () => {
-    console.log(`[Server] OmniCore OS running on port ${PORT}`);
+// ------------------------------------
+// Global Error Handler Middleware
+// ------------------------------------
+app.use((err, req, res, next) => {
+  console.error('[Server Error]:', err.stack);
+  res.status(err.statusCode || 500).json({
+    status: 'error',
+    message: err.message || 'Internal Server Error',
   });
-};
+});
 
-startServer();
+// ------------------------------------
+// Socket.io Real-Time Connection Handling
+// ------------------------------------
+io.on('connection', (socket) => {
+  console.log(`[Socket] Client connected: ${socket.id}`);
 
-const helpdeskRoutes = require('./modules/helpdesk/helpdeskRoutes');
-app.use('/api/v1/helpdesk', helpdeskRoutes);
-const gatewayRoutes = require('./modules/gateway/gatewayRoutes');
-const { correlationIdMiddleware } = require('./middleware/gatewayMiddleware');
+  // Join a tenant-specific room for multi-tenant data isolation
+  socket.on('join_tenant', (tenantId) => {
+    socket.join(`tenant_${tenantId}`);
+    console.log(`[Socket] Client ${socket.id} joined tenant room: tenant_${tenantId}`);
+  });
 
-app.use(correlationIdMiddleware); // Use correlation tracking globally
-app.use('/api/v1/gateway', gatewayRoutes);
+  socket.on('disconnect', () => {
+    console.log(`[Socket] Client disconnected: ${socket.id}`);
+  });
+});
+
+// ------------------------------------
+// Start Server
+// ------------------------------------
+const PORT = process.env.PORT || 5000;
+server.listen(PORT, () => {
+  console.log(`[Server] OmniCore OS running on port ${PORT}`);
+});

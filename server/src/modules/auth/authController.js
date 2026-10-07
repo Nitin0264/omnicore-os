@@ -1,5 +1,5 @@
-const User = require('../../../models/User');
-const Tenant = require('../../../models/Tenant');
+const User = require('../../models/user');
+const Tenant = require('../../models/tenant'); // just in case it's also there
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
