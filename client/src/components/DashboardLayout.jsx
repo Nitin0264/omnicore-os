@@ -25,7 +25,7 @@ export default function DashboardLayout({ children, activeTab, setActiveTab }) {
             <div className="w-8 h-8 rounded-lg bg-indigo-600/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
               <ShieldCheck size={18} />
             </div>
-            <h1 className="text-lg font-black tracking-wider text-slate-100">OMNICORE OS</h1>
+            <h1 className="text-lg font-black tracking-wider text-slate-100">OMNICORE OS  Updqted Version</h1>
           </div>
           <p className="text-xs text-slate-400 pl-10">Enterprise Agent Platform</p>
         </div>
