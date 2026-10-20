@@ -72,7 +72,7 @@ export default function DashboardLayout({ children, activeTab, setActiveTab }) {
         {/* Top Header */}
         <header className="h-20 bg-[#111827] border-b border-slate-800/80 flex items-center justify-between px-8 z-10 shadow-sm">
           <div className="flex items-center gap-3">
-            <h2 className="text-xl font-bold capitalize tracking-tight text-slate-100">{activeTab} Workspace</h2>
+            <h2 className="text-xl font-bold capitalize tracking-tight text-slate-100">{activeTab} updated Workspace</h2>
             <span className="text-xs text-slate-500 font-mono hidden sm:inline-block">/ omnicore://core-engine</span>
           </div>
 
