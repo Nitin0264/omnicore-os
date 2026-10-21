@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import AuthScreen from './components/AuthScreen';
 import DashboardLayout from './components/DashboardLayout';
 import ProjectBoard from './components/ProjectBoard';
 import InventoryView from './components/InventoryView';
 import HelpdeskView from './components/HelpdeskView';
 import AgentHub from './components/AgentHub';
-import { ShieldCheck, ArrowRight, Layers, Sparkles, Terminal, Activity, CheckCircle2 } from 'lucide-react';
+import { ShieldCheck, ArrowRight, Layers, Sparkles, Terminal } from 'lucide-react';
 
 export default function App() {
   const [token, setToken] = useState(localStorage.getItem('omnicore_token'));
   const [activeTab, setActiveTab] = useState('overview');
   const [showAuthModal, setShowAuthModal] = useState(false);
 
-  const handleLoginSuccess = (userData) => {
+  const handleLoginSuccess = () => {
     setToken(localStorage.getItem('omnicore_token'));
     setShowAuthModal(false);
   };
@@ -22,10 +22,10 @@ export default function App() {
     setToken(null);
   };
 
-  // If token is active, show the protected dashboard workspace
+  // If logged in, show the protected enterprise dashboard
   if (token) {
     return (
-      <DashboardLayout activeTab={activeTab} setActiveTab={setActiveTab}>
+      <DashboardLayout activeTab={activeTab} setActiveTab={setActiveTab} onLogout={handleLogout}>
         {activeTab === 'overview' && (
           <div className="max-w-6xl mx-auto p-6 md:p-10 space-y-8 animate-fadeIn">
             <div className="bg-[#111827] border border-slate-800/80 p-8 rounded-3xl shadow-2xl relative overflow-hidden">
@@ -87,7 +87,7 @@ export default function App() {
     );
   }
 
-  // If user clicked Sign In from the landing page, show the Auth Modal/Screen
+  // If user clicked Sign In from the landing page, show the authentication screen
   if (showAuthModal) {
     return (
       <div className="relative">
@@ -102,10 +102,10 @@ export default function App() {
     );
   }
 
-  // Landing Page with Hero Image background, description, and two CTA buttons
+  // Hero Landing Page (Shown to non-authenticated visitors)
   return (
-    <div className="relative min-h-screen w-screen flex flex-col items-center justify-center bg-[#090d16] text-slate-100 overflow-hidden px-4">
-      {/* Background Image with Dark Overlay */}
+    <div className="relative min-h-screen w-screen flex flex-col items-center justify-center bg-[#090d16] text-slate-100 overflow-x-hidden px-4">
+      {/* Background Hero Image with Dark Overlay */}
       <div className="absolute inset-0 z-0">
         <img
           src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&q=80&w=2000"
@@ -115,8 +115,8 @@ export default function App() {
         <div className="absolute inset-0 bg-gradient-to-t from-[#090d16] via-[#090d16]/80 to-transparent"></div>
       </div>
 
-      {/* Hero Content Center Container */}
-      <div className="relative z-10 max-w-4xl mx-auto text-center space-y-6 py-12">
+      {/* Hero Content Center */}
+      <div className="relative z-10 max-w-4xl mx-auto text-center space-y-6 py-16">
         <div className="inline-flex items-center gap-2.5 bg-indigo-600/10 border border-indigo-500/20 px-4 py-2 rounded-2xl text-indigo-400 text-xs font-bold tracking-wider uppercase shadow-xl backdrop-blur-md">
           <ShieldCheck size={16} />
           <span>Enterprise Agent Platform & Operating System</span>
@@ -130,7 +130,7 @@ export default function App() {
           A modular, multi-tenant enterprise operating system built with Node.js, MongoDB, and React. Centralize project workflows, warehouse inventory ERP, AI helpdesk triage, and autonomous LLM agent execution in one unified cluster.
         </p>
 
-        {/* Action Buttons */}
+        {/* The Two Requested Action Buttons */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
           <button
             onClick={() => {
@@ -152,7 +152,7 @@ export default function App() {
         </div>
       </div>
 
-      {/* Explore Section anchor info */}
+      {/* Explore Section Info Cards */}
       <div id="about-section" className="relative z-10 max-w-5xl mx-auto py-16 grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
         <div className="bg-[#111827]/80 backdrop-blur-md border border-slate-800/80 p-6 rounded-2xl space-y-2 shadow-xl">
           <div className="text-indigo-400 font-bold text-sm">01 / Modular Architecture</div>
